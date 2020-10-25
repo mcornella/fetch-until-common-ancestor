@@ -74,6 +74,11 @@ test-should-run() {
 root="$(cd "$(dirname $0)"; pwd)"
 
 setup() {
+	git-commit() {
+		[ -z "$commitdate" ] && commitdate=1603659000 || commitdate=$(( commitdate + 1 ))
+		GIT_COMMITTER_DATE="$commitdate" git commit --quiet --date "$commitdate" --allow-empty -m "$1"
+	}
+
 	# $1 = additional setup commands in remote repository
 
 	# Clean up
@@ -82,11 +87,11 @@ setup() {
 	# Remote setup
 	git init --quiet "$root/remote"
 	cd "$root/remote"
-	git commit --quiet --allow-empty -m "Commit 1"
-	git commit --quiet --allow-empty -m "Commit 2"
-	git commit --quiet --allow-empty -m "Commit 3"
+	git-commit "Commit 1"
+	git-commit "Commit 2"
+	git-commit "Commit 3"
 	git checkout --quiet -b master
-	git commit --quiet --allow-empty -m "master 1"
+	git-commit "master 1"
 	git checkout --quiet main
 
 	eval "$1"

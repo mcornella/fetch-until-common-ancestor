@@ -7,13 +7,13 @@ assert_matching_revlists='
 
 test_expect_success 'Only fetches until newest common ancestor on diverged branches (1)' '
 	git checkout --quiet master
-	git commit --quiet --allow-empty -m "master 2"
-	git commit --quiet --allow-empty -m "master 3"
+	git-commit "master 2"
+	git-commit "master 3"
 	git checkout --quiet main
-	git commit --quiet --allow-empty -m "main 1"
+	git-commit "main 1"
 ' "$assert_matching_revlists"
 
 test_expect_success 'Only fetches until newest common ancestor on diverged branches (2)' '
 	git checkout --quiet main
-	git commit --quiet --allow-empty -m "main 1"
+	git-commit "main 1"
 ' "$assert_matching_revlists"

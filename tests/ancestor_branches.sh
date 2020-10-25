@@ -16,6 +16,6 @@ test_expect_success 'Only fetches until main if ancestor of master' '
 test_expect_success 'Only fetches until master if ancestor of main' '
 	git checkout --quiet main
 	git reset --quiet --hard master
-	git commit --quiet --allow-empty -m "main 1"
-	git commit --quiet --allow-empty -m "main 2"
+	git-commit "main 1"
+	git-commit "main 2"
 ' "$assert_matching_revlists"

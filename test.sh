@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 root="$(cd "$(dirname $0)"; pwd)"
@@ -6,7 +6,7 @@ root="$(cd "$(dirname $0)"; pwd)"
 # utilities
 
 abort() {
-	printf "\n${RED}ABORT: $1${RESET}\n\n" >&4
+	printf "\n${RED}ABORT: $1${RESET}\n\n" >&2
 	exit 1
 }
 
@@ -22,7 +22,7 @@ colors
 
 # test results
 
-tests=0
+test=0
 pass=0
 fail=0
 
@@ -57,50 +57,43 @@ trap 'report_tests' EXIT
 # test running
 
 setup() {
-	exec 3>&1 4>&2 >/dev/null 2>&1
-
 	# Clean up
 	cd "$root"
 	rm -rf remote local
 
 	# Remote setup
-	git init remote
-	git -C remote commit --allow-empty -m "main 1"
-	git -C remote commit --allow-empty -m "main 2"
+	git init --quiet remote
+	git -C remote commit --quiet --allow-empty -m "main 1"
+	git -C remote commit --quiet --allow-empty -m "main 2"
+	git -C remote commit --quiet --allow-empty -m "main 3"
 	git -C remote checkout --quiet -b master
-	git -C remote commit --allow-empty -m "master 1"
+	git -C remote commit --quiet --allow-empty -m "master 1"
 	git -C remote checkout --quiet main
 
-	test -d "$root/remote" || abort "setup: remote folder not found"
-
 	# Local setup
-	git clone --depth=1 file://$PWD/remote/.git local
+	git clone --quiet --depth=1 file://$PWD/remote/.git local
 
+	test -d "$root/remote" || abort "setup: remote folder not found"
 	test -d "$root/local" || abort "setup: local folder not found"
-
-	# Cd into remote repository
-	cd "$root/remote"
-
-	exec >&3 2>&4 3>&- 4>&-
 }
 
 test_runner() {
 	# $1 = description
 	# $2 = setup
 	# $3 = assertion
-	# $4 = when to pass the test
 
-	tests=$(( tests + 1 ))
-	echo -n "${WHITE}${BOLD}[$tests] $1: ${RESET}"
+	test=$(( test + 1 ))
+	echo -n "${WHITE}${BOLD}[$test] $1: ${RESET}"
 
 	# Setup repositories
-	setup && eval "$2"
+	setup
+	cd "$root/remote" && eval "$2"
 
 	# Run main algorithm inside local
-	cd "$root/local"
-	"$root/fetch.sh" main master 2>/dev/null
+	cd "$root/local" && "$root/fetch.sh" main master
 
 	# Run assertion
+	cd "$root"
 	eval "$3"
 }
 
@@ -123,9 +116,8 @@ test_expect_failure() {
 }
 
 # Test runner tests
-test_expect_success 'the test runner passes correctly' '' 'true'
-test_expect_failure 'the test runner fails correctly' '' 'false'
-test_expect_success 'the test runner fails correctly' '' 'false'
+test_expect_success 'The test runner passes correctly' '' 'true'
+test_expect_failure 'The test runner fails correctly' '' 'false'
 
 # Algorithm tests
 for testfile in "$root/tests"/*.sh; do

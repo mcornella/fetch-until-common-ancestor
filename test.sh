@@ -57,37 +57,41 @@ trap 'report_tests' EXIT
 # test running
 
 setup() {
+	# $1 = additional setup commands in remote repository
+
 	# Clean up
-	cd "$root"
-	rm -rf remote local
+	rm -rf "$root/remote" "$root/local"
 
 	# Remote setup
-	git init --quiet remote
-	git -C remote commit --quiet --allow-empty -m "Commit 1"
-	git -C remote commit --quiet --allow-empty -m "Commit 2"
-	git -C remote commit --quiet --allow-empty -m "Commit 3"
-	git -C remote checkout --quiet -b master
-	git -C remote commit --quiet --allow-empty -m "master 1"
-	git -C remote checkout --quiet main
+	git init --quiet "$root/remote"
+	cd "$root/remote"
+	git commit --quiet --allow-empty -m "Commit 1"
+	git commit --quiet --allow-empty -m "Commit 2"
+	git commit --quiet --allow-empty -m "Commit 3"
+	git checkout --quiet -b master
+	git commit --quiet --allow-empty -m "master 1"
+	git checkout --quiet main
+
+	eval "$1"
 
 	# Local setup
-	git clone --quiet --depth=1 file://$PWD/remote/.git local
+	git clone --quiet --depth=1 "file://$root/remote/.git" "$root/local"
 
+	# Assert both repositories have been created
 	test -d "$root/remote" || abort "setup: remote folder not found"
 	test -d "$root/local" || abort "setup: local folder not found"
 }
 
 test_runner() {
 	# $1 = description
-	# $2 = setup
+	# $2 = remote repository setup
 	# $3 = assertion
 
 	test=$(( test + 1 ))
 	echo -n "${WHITE}${BOLD}[$test] $1: ${RESET}"
 
 	# Setup repositories
-	setup
-	cd "$root/remote" && eval "$2"
+	setup "$2"
 
 	# Run main algorithm inside local
 	cd "$root/local" && "$root/fetch.sh" main master

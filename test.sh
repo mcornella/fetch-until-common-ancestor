@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+[ "$1" = --all ] || set -e
 
 root="$(cd "$(dirname $0)"; pwd)"
 

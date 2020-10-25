@@ -2,7 +2,8 @@ assert_matching_revlists='
 	# Source: https://stackoverflow.com/a/42526347/5798232
 	expected="$(cd "$root/remote"; git rev-list main master $(git merge-base main master)^!)"
 	found="$(cd "$root/local"; git rev-list --all)"
-	diff -u <(echo "$expected") <(echo "$found")
+	diff -u <(echo "$expected") <(echo "$found") && \
+	git -C "$root/local" merge-base main master >/dev/null 2>&1
 '
 
 test_expect_success 'Only fetches one commit if main and master are the same' '

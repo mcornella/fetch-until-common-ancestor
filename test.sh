@@ -63,9 +63,9 @@ setup() {
 
 	# Remote setup
 	git init --quiet remote
-	git -C remote commit --quiet --allow-empty -m "main 1"
-	git -C remote commit --quiet --allow-empty -m "main 2"
-	git -C remote commit --quiet --allow-empty -m "main 3"
+	git -C remote commit --quiet --allow-empty -m "Commit 1"
+	git -C remote commit --quiet --allow-empty -m "Commit 2"
+	git -C remote commit --quiet --allow-empty -m "Commit 3"
 	git -C remote checkout --quiet -b master
 	git -C remote commit --quiet --allow-empty -m "master 1"
 	git -C remote checkout --quiet main

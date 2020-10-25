@@ -1,7 +1,16 @@
 #!/bin/bash
-[ "$1" = --all ] || set -e
+set -e
 
-root="$(cd "$(dirname $0)"; pwd)"
+# Parse arguments
+#   <num>: only execute test number <num>
+#   --all: disable exit on error (runs all tests)
+while [ $# -gt 0 ]; do
+	case "$1" in
+		[0-9]*) runtest=$1 ;;
+		--all) set +e ;;
+	esac
+	shift
+done
 
 # utilities
 
@@ -22,7 +31,6 @@ colors
 
 # test results
 
-test=0
 pass=0
 fail=0
 
@@ -56,6 +64,15 @@ trap 'report_tests' EXIT
 
 # test running
 
+test=0
+
+test-should-run() {
+	test=$(( test + 1 ))
+	[ -z "$runtest" ] || [ $runtest -eq $test ]
+}
+
+root="$(cd "$(dirname $0)"; pwd)"
+
 setup() {
 	# $1 = additional setup commands in remote repository
 
@@ -87,7 +104,6 @@ test_runner() {
 	# $2 = remote repository setup
 	# $3 = assertion
 
-	test=$(( test + 1 ))
 	echo -n "${WHITE}${BOLD}[$test] $1: ${RESET}"
 
 	# Setup repositories
@@ -102,6 +118,10 @@ test_runner() {
 }
 
 test_expect_success() {
+	if ! test-should-run; then
+		return
+	fi
+
 	if ! test_runner "$1" "$2" "$3"; then
 		fail
 		return 1
@@ -111,6 +131,10 @@ test_expect_success() {
 }
 
 test_expect_failure() {
+	if ! test-should-run; then
+		return
+	fi
+
 	if test_runner "$1" "$2" "$3"; then
 		fail
 		return 1

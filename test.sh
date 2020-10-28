@@ -6,7 +6,7 @@ set -e
 #   --all: disable exit on error (runs all tests)
 while [ $# -gt 0 ]; do
 	case "$1" in
-		[0-9]*) runtest=$1 ;;
+		[0-9]+) runtest=$1 ;;
 		--all) set +e ;;
 	esac
 	shift

@@ -57,10 +57,12 @@ report_tests() {
 	else
 		echo -n "$pass $(plural test $pass) passed, "
 		echo "$fail $(plural test $fail) failed."
+
+		return 1
 	fi
 }
 
-trap 'report_tests' EXIT
+trap 'report_tests; exit $?' EXIT
 
 # test running
 

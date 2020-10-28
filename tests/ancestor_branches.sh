@@ -14,7 +14,18 @@ test_expect_success 'Only fetches one commit if main and master are the same' '
 test_expect_success 'Only fetches until main if ancestor of master' '
 ' "$assert_matching_revlists"
 
+test_expect_success 'Only fetches until main if ancestor of master and HEAD -> latest' '
+	git checkout --quiet master
+' "$assert_matching_revlists"
+
 test_expect_success 'Only fetches until master if ancestor of main' '
+	git checkout --quiet main
+	git reset --quiet --hard master
+	git-commit "main 1"
+	git checkout --quiet master
+' "$assert_matching_revlists"
+
+test_expect_success 'Only fetches until master if ancestor of main and HEAD -> latest' '
 	git checkout --quiet main
 	git reset --quiet --hard master
 	git-commit "main 1"

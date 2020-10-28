@@ -18,5 +18,16 @@ test_expect_success 'Only fetches until master if ancestor of main' '
 	git checkout --quiet main
 	git reset --quiet --hard master
 	git-commit "main 1"
+' "$assert_matching_revlists"
+
+test_expect_success 'Fetches until main with 2 commits of difference' '
+	git checkout --quiet master
+	git-commit "master 2"
+' "$assert_matching_revlists"
+
+test_expect_success 'Fetches until master with 2 commits of difference' '
+	git checkout --quiet main
+	git reset --quiet --hard master
+	git-commit "main 1"
 	git-commit "main 2"
 ' "$assert_matching_revlists"
